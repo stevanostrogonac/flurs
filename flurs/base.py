@@ -17,11 +17,27 @@ class RecommenderMixin(object):
         # store user data
         self.users = {}
 
+        # Added by stevano.
+        # store user IDs, needed to deduce user index for updates and recommendation generation
+        self.user_list = []
+
         # number of observed items
         self.n_item = 0
 
         # store item data
         self.items = {}
+
+        # Added by stevano.
+        # store item IDs, needed to deduce item index for updates and recommendation generation
+        self.item_list = []
+    
+    # Added by stevano.
+    def get_user_index (self, user):
+        return self.user_list.index(user)
+
+    # Added by stevano.
+    def get_item_index (self, item):
+        return self.item_list.index(item)
 
     def is_new_user(self, u):
         """Check if user is new.
@@ -41,6 +57,14 @@ class RecommenderMixin(object):
             self.register_user(entity)
         elif t == Item:
             self.register_item(entity)
+    
+    # Added by stevano.
+    def unregister(self, entity):
+        t = type(entity)
+        if t == User:
+            self.unregister_user(entity)
+        elif t == Item:
+            self.unregister_item(entity)
 
     def register_user(self, user):
         """For new users, append their information into the dictionaries.
@@ -49,8 +73,24 @@ class RecommenderMixin(object):
             user (User): User.
 
         """
+        self.user_list.append(user.index)
         self.users[user.index] = {'known_items': set()}
         self.n_user += 1
+    
+    # Added by stevano.
+    def unregister_user(self, user):
+        """Remove user's information from the system.
+
+        Args:
+            user (User): User.
+
+        """
+        if (self.is_new_user(user.index)):
+            print("User not in the system!")
+        else:
+            del self.user_list[self.get_user_index(user.index)]
+            del self.users[user.index]
+            self.n_user -= 1
 
     def is_new_item(self, i):
         """Check if item is new.
@@ -71,8 +111,24 @@ class RecommenderMixin(object):
             item (Item): Item.
 
         """
+        self.item_list.append(item.index)
         self.items[item.index] = {}
         self.n_item += 1
+    
+    # Added by stevano.
+    def unregister_item(self, item):
+        """Remove item's information from the system.
+
+        Args:
+            user (Item): Item.
+
+        """
+        if (self.is_new_item(item.index)):
+            print("Item not in the system!")
+        else:
+            del self.item_list[self.get_item_index(item.index)]
+            del self.items[item.index]
+            self.n_item -= 1
 
     def update(self, e, batch_train):
         """Update model parameters based on d, a sample represented as a dictionary.

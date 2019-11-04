@@ -27,6 +27,10 @@ class MFRecommender(MatrixFactorization, RecommenderMixin):
         super(MFRecommender, self).register_user(user)
         self.users[user.index]['vec'] = np.random.normal(0., 0.1, self.k)
 
+    # Added by stevano.
+    def unregister_user(self, user):
+        super(MFRecommender, self).unregister_user(user)
+
     def register_item(self, item):
         super(MFRecommender, self).register_item(item)
         i_vec = np.random.normal(0., 0.1, (1, self.k))
@@ -35,18 +39,24 @@ class MFRecommender(MatrixFactorization, RecommenderMixin):
         else:
             self.Q = np.concatenate((self.Q, i_vec))
 
+    # Added by stevano.
+    def unregister_item(self, item):
+        super(MFRecommender, self).unregister_item(item)
+        self.Q = np.delete(self.Q, self.get_item_index(item.index), 0)
+
     def update(self, e, batch_train=False):
         # static baseline; w/o updating the model
         if not batch_train and self.static:
             return
 
-        if e.value != 1.:
-            logger.info('Incremental matrix factorization assumes implicit feedback recommendation, so the event value is automatically converted into 1.0')
-            e.value = 1.
+        # if e.value != 1.:
+        #     logger.info('Incremental matrix factorization assumes implicit feedback recommendation, so the event value is automatically converted into 1.0')
+        #     e.value = 1.
 
-        self.update_model(e.user.index, e.item.index, e.value)
+        self.update_model(e.user.index, self.get_item_index(e.item.index), e.value)
 
     def score(self, user, candidates):
+        print(self.users)
         pred = np.dot(self.users[user.index]['vec'],
                       self.Q[candidates, :].T)
         return np.abs(1. - pred.flatten())
