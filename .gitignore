@@ -2,3 +2,5 @@
 doc/_build
 dist/
 flurs.egg-info/
+.idea/
+.vscode/
