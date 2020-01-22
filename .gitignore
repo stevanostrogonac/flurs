@@ -4,3 +4,5 @@ dist/
 flurs.egg-info/
 /.idea/
 /.vscode/
+./flurs/.vscode/
+./flurs/__pycache__/
