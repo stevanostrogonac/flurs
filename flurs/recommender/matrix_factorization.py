@@ -41,8 +41,9 @@ class MFRecommender(MatrixFactorization, RecommenderMixin):
 
     # Added by stevano.
     def unregister_item(self, item):
+        item_index = self.get_item_index(item.index)
         super(MFRecommender, self).unregister_item(item)
-        self.Q = np.delete(self.Q, self.get_item_index(item.index), 0)
+        self.Q = np.delete(self.Q, item_index, 0)
 
     def update(self, e, batch_train=False):
         # static baseline; w/o updating the model
