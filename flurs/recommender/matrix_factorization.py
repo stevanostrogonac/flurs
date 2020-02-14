@@ -57,7 +57,7 @@ class MFRecommender(MatrixFactorization, RecommenderMixin):
         self.update_model(e.user.index, self.get_item_index(e.item.index), e.value)
 
     def score(self, user, candidates):
-        print(self.users)
+        #print(self.users)
         pred = np.dot(self.users[user.index]['vec'],
                       self.Q[candidates, :].T)
         return np.abs(1. - pred.flatten())
