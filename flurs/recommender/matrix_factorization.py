@@ -60,7 +60,7 @@ class MFRecommender(MatrixFactorization, RecommenderMixin):
         #print(self.users)
         pred = np.dot(self.users[user.index]['vec'],
                       self.Q[candidates, :].T)
-        return np.abs(1. - pred.flatten())
+        return np.nan_to_num(np.abs(1. - pred.flatten()))
 
     def recommend(self, user, candidates):
         scores = self.score(user, candidates)
